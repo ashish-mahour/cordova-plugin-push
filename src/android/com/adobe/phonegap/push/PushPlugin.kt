@@ -28,6 +28,8 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Cordova Plugin Push
@@ -614,15 +616,16 @@ class PushPlugin : CordovaPlugin() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       if (!PermissionHelper.hasPermission(this, Manifest.permission.POST_NOTIFICATIONS))
       {
-        PermissionHelper.requestPermission(
-          this,
-          REQ_CODE_INITIALIZE_PLUGIN,
-          Manifest.permission.POST_NOTIFICATIONS
-        )
+        Executors.newSingleThreadScheduledExecutor().schedule({
+          PermissionHelper.requestPermission(
+            this,
+            REQ_CODE_INITIALIZE_PLUGIN,
+            Manifest.permission.POST_NOTIFICATIONS
+          )
+        }, 500, TimeUnit.MILLISECONDS)
         return false
       }
     }
-
     return true
   }
 
